@@ -1,0 +1,64 @@
+From 6f170975032a6d5b7427c438711239fe61686b89 Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@google.com>
+Date: Tue, 14 Sep 2021 15:48:07 +0200
+Subject: [PATCH 01/53] ANDROID: Revert "Enable '-Werror' by default for all
+ kernel builds"
+
+This reverts commit 3fe617ccafd6f5bb33c2391d6f4eeb41c1fd0151.
+
+Right now the android build system can not work properly for some of the
+builds forcing this option on for them as they still have warnings.
+
+So revert it for now, we will remove this later on, hopefully before
+5.15-final is out, after all of the build warnings are cleaned up.
+
+Bug: 199872592
+Signed-off-by: Greg Kroah-Hartman <gregkh@google.com>
+Change-Id: I7e6a0ebb76ab2876cb180214911c1c25b0904a23
+---
+ Makefile     |  3 ---
+ init/Kconfig | 14 --------------
+ 2 files changed, 17 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index b2b65f7c168..f1f89825d1e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -792,9 +792,6 @@ stackp-flags-$(CONFIG_STACKPROTECTOR_STRONG)      := -fstack-protector-strong
+ 
+ KBUILD_CFLAGS += $(stackp-flags-y)
+ 
+-KBUILD_CFLAGS-$(CONFIG_WERROR) += -Werror
+-KBUILD_CFLAGS += $(KBUILD_CFLAGS-y)
+-
+ ifdef CONFIG_CC_IS_CLANG
+ KBUILD_CPPFLAGS += -Qunused-arguments
+ # The kernel builds with '-std=gnu89' so use of GNU extensions is acceptable.
+diff --git a/init/Kconfig b/init/Kconfig
+index d19ed66aba3..d825f75568c 100644
+--- a/init/Kconfig
++++ b/init/Kconfig
+@@ -142,20 +142,6 @@ config COMPILE_TEST
+ 	  here. If you are a user/distributor, say N here to exclude useless
+ 	  drivers to be distributed.
+ 
+-config WERROR
+-	bool "Compile the kernel with warnings as errors"
+-	default COMPILE_TEST
+-	help
+-	  A kernel build should not cause any compiler warnings, and this
+-	  enables the '-Werror' flag to enforce that rule by default.
+-
+-	  However, if you have a new (or very old) compiler with odd and
+-	  unusual warnings, or you have some architecture with problems,
+-	  you may need to disable this config option in order to
+-	  successfully build the kernel.
+-
+-	  If in doubt, say Y.
+-
+ config UAPI_HEADER_TEST
+ 	bool "Compile test UAPI headers"
+ 	depends on HEADERS_INSTALL && CC_CAN_LINK
+-- 
+2.36.2
+

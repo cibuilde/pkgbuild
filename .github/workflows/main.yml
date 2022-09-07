@@ -1,0 +1,21 @@
+name: PKGBUILD CI
+
+on: [push]
+
+jobs:
+  linux-lts_job:
+    runs-on: ubuntu-22.04
+    name: build linux lts
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - name: pkgbuild action step
+        id: pkgbuild
+        uses: cibuilde/pkgbuild-action@main
+        with:
+          pkgdir: linux-lts
+      - name: Upload Artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: linux-lts
+          path: linux-lts/linux-lts-*-x86_64.pkg.tar.zst

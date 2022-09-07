@@ -1,0 +1,43 @@
+From 020549d1b5b3ff35b13850338f28e813e5ec73c4 Mon Sep 17 00:00:00 2001
+From: Alessio Balsini <balsini@google.com>
+Date: Mon, 25 Jan 2021 17:01:30 +0000
+Subject: [PATCH 04/53] FROMLIST: fuse: 32-bit user space ioctl compat for fuse
+ device
+
+With a 64-bit kernel build the FUSE device cannot handle ioctl requests
+coming from 32-bit user space.
+This is due to the ioctl command translation that generates different
+command identifiers that thus cannot be used for direct comparisons
+without proper manipulation.
+
+Explicitly extract type and number from the ioctl command to enable
+32-bit user space compatibility on 64-bit kernel builds.
+
+[CPNOTE: 20/05/21] Lee: Still fresh - hopefully this will land upstream soon
+
+Bug: 168023149
+Link: https://lore.kernel.org/lkml/20210125153057.3623715-3-balsini@android.com/
+Signed-off-by: Alessio Balsini <balsini@android.com>
+Change-Id: I595517c54d551be70e83c7fcb4b62397a3615004
+Signed-off-by: Alessio Balsini <balsini@google.com>
+---
+ fs/fuse/dev.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
+index cba1fe829f0..7d42ee9ffa1 100644
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -2276,7 +2276,8 @@ static long fuse_dev_ioctl(struct file *file, unsigned int cmd,
+ 				 * uses the same ioctl handler.
+ 				 */
+ 				if (old->f_op == file->f_op &&
+-				    old->f_cred->user_ns == file->f_cred->user_ns)
++				    old->f_cred->user_ns ==
++					    file->f_cred->user_ns)
+ 					fud = fuse_get_dev(old);
+ 
+ 				if (fud) {
+-- 
+2.36.2
+
